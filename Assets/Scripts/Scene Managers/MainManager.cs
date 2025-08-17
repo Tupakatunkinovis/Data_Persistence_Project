@@ -10,7 +10,7 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text ScoreText, bestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -22,6 +22,7 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Creation of destroyable bricks with their scores
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +37,14 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        UpdateHighestScoreText();
+    }
+
+    private void UpdateHighestScoreText()
+    {
+        Player p = GameDAO.GetInstance().GetPlayer(0);
+        bestScoreText.text = "Best Score: " + p.name + " : " + p.score;
     }
 
     private void Update()
@@ -72,5 +81,16 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        // We prepare the player to be added to the ranking board
+        string[] strings = ScoreText.text.Split(' ');
+        GameDAO.GetInstance().currentPlayer.score = int.Parse(strings[strings.Length-1]);
+
+        // Add player to ranking board
+        GameDAO.GetInstance().AddCurrentPlayerToRankings();
+
+
+        UpdateHighestScoreText();
     }
+
 }
